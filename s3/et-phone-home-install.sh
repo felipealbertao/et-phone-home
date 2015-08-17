@@ -52,5 +52,5 @@ dropbearkey -t rsa -f /root/.ssh/id_rsa > /dev/null
 
 echo "Copy the snippet below and paste on the et-phone-home ssh server:"
 echo "=============================="
-echo "et-home/create_device_user.sh $device_id '`dropbearkey -f /root/.ssh/id_rsa -y | grep ssh-rsa`'"
+echo "/home/ubuntu/et-phone-home/et-home/create_device_user.sh $device_id '`dropbearkey -f /root/.ssh/id_rsa -y | grep ssh-rsa`'"
 echo "=============================="
