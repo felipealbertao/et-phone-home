@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ls /home | grep "device" | tr -d "device" 
+ls /home | grep device | cut -c7-
