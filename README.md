@@ -17,7 +17,7 @@ This solution was customized for OpenWRT, but it likely works with little or no 
 - More than one port can be forwarded, allowing the remote administration of the OpenWRT device using its Web interface.
 
 
-## EC2 Server Set-up
+## AWS SSH Server Set-up
 
 ### SSH Server provisioning
 
@@ -64,43 +64,54 @@ export SSH_SERVER=52.20.12.167 ; wget -qO - http://s3-us-west-2.amazonaws.com/et
 
 *IMPORTANT*: Change the `SSH_SERVER` ip address above to your own IP address provisioned by AWS.
 
-The script above will install the files needed to run the scripts on OpenWRT, and it will also generate a SSH key to connect with the server. Instructions will be shown at the end of the script execution: Follow the instructions to copy and paste the public key to the AWS SSH server.
+The script above will install the files needed to run the scripts on OpenWRT, and it will also generate a SSH key to connect with the server.
 
-Also make a note of the device id generated for the device: This is the id you will use to connect to the device later.
+Instructions will be shown at the end of the script execution: Follow the instructions to copy and paste the public key to the AWS SSH server. The script mentioned in the instructions will create the user and the ssh key the device needs to connect to the server.
+
+Also make a note of the device id generated for the device: This is the id you will use to connect to the device later. The device id is the MAC Address of the wireless port.
 
 _Note:_ The files needed to install the scripts on OpenWRT are available on S3 for your convenience, but you may upload `s3/et-phone-home.sh` and `s3/et-phone-home-install.sh` to your own S3 bucket, setting the permission as "Make everything public". Also note that S3 is used (as oppose to GitHub) because it exposes the files as plain http, since OpenWRT's `wget` does not support https.
 
 
 ## Usage
 
-### Connecting to the remote device
+### List the available devices
+
+SSH to the AWS server (ex: `ssh -i <key-pair>.pem ubuntu@<AWS SSH Server>`)
 
 ```bash
-ssh -i <key-pair>.pem ubuntu@<AWS SSH Server>
-echo "22:5678" | sudo -u <device_id> tee /home/<device_id>/et-home-msg
-tail -f /var/log/auth.log   # Wait until the device connects
-ssh -o "NoHostAuthenticationForLocalhost yes" -p 5678 root@localhost
+/home/ubuntu/et-phone-home/remote-control/list_devices.sh
 ```
 
-Note that the port `5678` was used just as an example
+### Connecting to the remote device
 
+SSH to the AWS server (ex: `ssh -i <key-pair>.pem ubuntu@<AWS SSH Server>`)
+
+```bash
+/home/ubuntu/et-phone-home/remote-control/forward_device_port.sh <device_id> <device_port>:<server_port>
+```
+
+Example:
+```bash
+/home/ubuntu/et-phone-home/remote-control/forward_device_port.sh 6466b34bde54 22:9876
+```
 
 ## Forward the device's web management interface to your local computer
 
+SSH to the AWS server (ex: `ssh -i <key-pair>.pem ubuntu@<AWS SSH Server>`), then use the same forward command
+above but on port 80. Example:
+
 ```bash
-ssh -i <key-pair>.pem ubuntu@<AWS SSH Server>
-echo "80:6789" | sudo -u <device_id> tee /home/<device_id>/et-home-msg
-tail -f /var/log/auth.log   # Wait until the device connects
+/home/ubuntu/et-phone-home/remote-control/forward_device_port.sh 6466b34bde54 80:8765
 ```
 
-On your local PC, create a tunnel from the SSH server to a local port:
+Then, on your local PC, create a tunnel from the SSH server to a local port:
 
 ```bash
-ssh -N -v -i <key-pair>.pem -L 3000:127.0.0.1:6789 ubuntu@<AWS SSH Server>
+ssh -N -v -i <key-pair>.pem -L 3000:127.0.0.1:8765 ubuntu@<AWS SSH Server>
 ```
 
 Access the web interface with http://localhost:3000
-
 
 ### Manage devices connected to the SSH server
 
@@ -108,9 +119,8 @@ Access the web interface with http://localhost:3000
    `ps -ef | grep ssh` or  
    `ps -ef | grep <device id>`
 
- - Kill devices connected to server:
+- Kill devices connected to server:
    `sudo kill <pid>`
-
 
 ### Checking the active device's "heartbeats" and last-connected time
 
@@ -128,7 +138,7 @@ Access the web interface with http://localhost:3000
 ssh -i /root/.ssh/id_rsa <device_id>@52.20.12.167 /home/ubuntu/et-phone-home/et-home/et-home-ping.sh
 ```
 
-Script will return 0 if no "message" is found (that is, the device should be on stand-by),
+The script will return 0 if no "message" is found (that is, the device should be on stand-by),
 or it will return a message in the format of "<local device port>:<remote server port>"
 
 
