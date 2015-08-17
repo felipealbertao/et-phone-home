@@ -53,11 +53,6 @@ Note that the script `et-home-ping.sh` must be under the absolute directory
     ```
     PermitRootLogin no
     ```
-- Install et-phone-home scripts:  
-  ```
-  sudo mkdir /opt/et-home
-  sudo cp ... /opt/et-home/et-home-ping.sh
-  ```
 
 ## OpenWRT Device Installation
 
@@ -130,7 +125,7 @@ Access the web interface with http://localhost:3000
 (execute this on the device)
 
 ```bash
-ssh -i /root/.ssh/id_rsa <device_id>@52.20.12.167 /opt/et-home/et-home-ping.sh
+ssh -i /root/.ssh/id_rsa <device_id>@52.20.12.167 /home/ubuntu/et-phone-home/et-home/et-home-ping.sh
 ```
 
 Script will return 0 if no "message" is found (that is, the device should be on stand-by),
