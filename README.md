@@ -96,13 +96,12 @@ Note that the port `5678` was used just as an example
 ssh -i <key-pair>.pem ubuntu@<AWS SSH Server>
 echo "80:6789" | sudo -u <device_id> tee /home/<device_id>/et-home-msg
 tail -f /var/log/auth.log   # Wait until the device connects
-ssh -o "NoHostAuthenticationForLocalhost yes" -p 6780 root@localhost
 ```
 
 On your local PC, create a tunnel from the SSH server to a local port:
 
 ```bash
-ssh -N -v -i ssh-server.pem -L 3000:127.0.0.1:6789 ubuntu@<AWS SSH Server>
+ssh -N -v -i <key-pair>.pem -L 3000:127.0.0.1:6789 ubuntu@<AWS SSH Server>
 ```
 
 Access the web interface with http://localhost:3000
