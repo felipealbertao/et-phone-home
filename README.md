@@ -10,7 +10,7 @@ This solution was customized for OpenWRT, but it likely works with little or no 
 ## How It Works
 
 - A SSH server is provisioned, and a user and home directory is created for every device on the server.
-- The device connects to the server every minute, looking for a file in the device's home dir. This servers as a very crude "inbox" messaging process.
+- The device connects to the server every minute, looking for a file in the device's home dir. This servers as a poor-man's "inbox" messaging process.
 - A file indicates the intent to control the device, containing the port that should be forwarded. If that file is present, then the device establishes the tunnel with the server and forwards the requested port.
 - If a file does not exists, the device simply disconnects and waits for the next tentative in a minute.
 - The "footprint" left by the device's minute-by-minute connection in the ssh auth logs serves as a kind of "heartbeat" that can be used to check the device's health.
